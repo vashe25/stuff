@@ -10,6 +10,44 @@ class parseYandexFeed
 	protected $xml;
 	protected $xmlPath = 'http://www.sberbank.ru/sberbank_oib_filial.xml';
 	protected $filename;
+	protected $headers = [
+		'Shop code',
+		'Business name',
+		'Address line 1',
+		'Address line 2',
+		'Address line 3',
+		'Address line 4',
+		'Address line 5',
+		'Sub-locality',
+		'Locality',
+		'Administrative area',
+		'Country',
+		'Postcode',
+		'Latitude',
+		'Longitude',
+		'Primary phone',
+		'Additional phones',
+		'Website',
+		'Primary category',
+		'Additional categories',
+		'Sunday hours',
+		'Monday hours',
+		'Tuesday hours',
+		'Wednesday hours',
+		'Thursday hours',
+		'Friday hours',
+		'Saturday hours',
+		'Special hours',
+		'Infor from company',
+		'Opening date',
+		'Profile photo',
+		'Logo',
+		'Cover',
+		'Other photos',
+		'Main photo',
+		'Tag',
+		'Phone for AdWords',
+	];
 
 	public function __construct()
 	{
@@ -26,21 +64,26 @@ class parseYandexFeed
 		}
 	}
 
+	protected function reFill($in)
+	{
+		$result = [];
+		foreach (array_flip($this->headers) as $k => $v) {
+			$result[$k] = $in[$k] ?? '';
+		}
+		return $result;
+	}
+
 	protected function exportCSV()
 	{
 		$this->filename = $this->setExportFilePath();
 		$fp = fopen($this->filename, 'w');
+		fputcsv($fp, $this->headers, ';');
 		foreach ($this->xml->company as $company) {
 			$whours = $this->parseWorkhours($company->{'working-time'});
-			$fields = [
+			$fields = $this->reFill([
 				'Shop code' => $company->{'company-id'}->__toString(),
 				'Business name' => $company->{'name-ru'}->__toString(),
 				'Address line 1' => $company->address->__toString(),
-				'Address line 2' => '',
-				'Address line 3' => '',
-				'Address line 4' => '',
-				'Address line 5' => '',
-				'Sub-locality' => '',
 				'Locality' => $company->{'locality-name'}->__toString(),
 				'Administrative area' => $company->{'admn-area'}->__toString(),
 				'Country' => 'RU',
@@ -48,10 +91,8 @@ class parseYandexFeed
 				'Latitude' => $company->coordinates->lat->__toString(),
 				'Longitude' => $company->coordinates->lon->__toString(),
 				'Primary phone' => $company->phone[0]->number->__toString(),
-				'Additional phones' => '',
 				'Website' => $company->url->__toString(),
 				'Primary category' => 'Банк',
-				'Additional categories' => '',
 				'Sunday hours' => $whours['вс'],
 				'Monday hours' => $whours['пн'],
 				'Tuesday hours' => $whours['вт'],
@@ -59,17 +100,9 @@ class parseYandexFeed
 				'Thursday hours' => $whours['чт'],
 				'Friday hours' => $whours['пт'],
 				'Saturday hours' => $whours['сб'],
-				'Special hours' => '',
 				'Infor from company' => 'Подразделение Сбербанка',
-				'Opening date' => '',
-				'Profile photo' => '',
-				'Logo' => '',
-				'Cover' => '',
-				'Other photos' => '',
-				'Main photo' => '',
-				'Tag' => '',
 				'Phone for AdWords' => $company->phone[0]->number->__toString(),
-			];
+			]);
 			fputcsv($fp, $fields, ';');
 		}
 		fclose($fp);
