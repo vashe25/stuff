@@ -152,7 +152,7 @@ class parseYandexFeed
 	{
 		echo "Done: " . $this->filename . "\n";
 	}
-	
+
 }
 
 new parseYandexFeed();

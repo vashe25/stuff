@@ -1,4 +1,8 @@
 <?php
+/**
+ * Links checker
+ */
+
 $links = require __DIR__ . '/links.php';
 $result = [];
 $ch = curl_init();
