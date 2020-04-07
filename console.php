@@ -1,5 +1,8 @@
+<?php
+
+
 $res = [];
-echo exec("ls -la /etc", $res);
+exec("ls {$_SERVER['DOCUMENT_ROOT']}/ | grep '.php'", $res);
 
 foreach ($res as $r) {
 	echo $r . "\n";
