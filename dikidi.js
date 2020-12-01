@@ -1,7 +1,7 @@
 /**
  * dikidi.ru
  * copy clients from one project to another
- * or dump it to clinets.json
+ * or dump it to clients.json
  */
 
 var jsonData = [];
